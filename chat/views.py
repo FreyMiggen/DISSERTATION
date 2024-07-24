@@ -79,3 +79,20 @@ def get_messages(request, user_id):
             } for msg in reversed(messages)
         ]
     })
+
+@login_required
+def open_inbox(request):
+    current_user = request.user
+
+    all_chat_rooms = ChatRoom.objects.filter(
+            Q(user1=current_user) | Q(user2=current_user)
+    )
+
+    other_users = list()
+    for room in all_chat_rooms:
+        if room.user1 == current_user:
+            other_users.append(room.user2)
+        else:
+            other_users.append(room.user1)
+    # get the chat room that is most recent active
+    messages = ChatMessage.objects.filter(user=current_user)
