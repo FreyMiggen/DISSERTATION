@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 User = get_user_model()
+from django.utils import timezone
 
 class ChatRoom(models.Model):
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -12,6 +13,8 @@ class ChatRoom(models.Model):
     user1 = models.ForeignKey(User,on_delete=models.CASCADE,related_name='chat_user1')
     user2 = models.ForeignKey(User,on_delete=models.CASCADE,related_name='chat_user2')
     created_at = models.DateTimeField(auto_now_add=True)
+    user1_last_visit = models.DateTimeField(null=True, blank=True)
+    user2_last_visit = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -32,7 +35,34 @@ class ChatRoom(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Chat between {self.user1.get_short_name()} and {self.user2.get_short_name()}"
+       return f"Chat between {self.user1.get_short_name()} and {self.user2.get_short_name()}"
+   
+    def update_last_visit(self, user):
+        now = timezone.now()
+        if user == self.user1:
+            self.user1_last_visit = now
+        elif user == self.user2:
+            self.user2_last_visit = now
+        self.save()
+
+    def get_unread_count(self, user):
+        if user == self.user1:
+            last_visit = self.user1_last_visit
+            other_user = self.user2
+        elif user == self.user2:
+            last_visit = self.user2_last_visit
+            other_user = self.user1
+        else:
+            return 0
+        
+        if last_visit is None:
+            # If the user has never visited, all messages are unread
+            return self.chatmessage_set.filter(user=other_user).count()
+        
+        return self.chatmessage_set.filter(
+            user=other_user,
+            timestamp__gt=last_visit
+        ).count()
 
 class ChatMessage(models.Model):
     room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)

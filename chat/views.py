@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from .models import ChatMessage,ChatRoom
 from django.http import JsonResponse
 from django.db.models import Q
+from django.views.decorators.http import require_GET
 User = get_user_model()
 
 @login_required
@@ -80,19 +81,39 @@ def get_messages(request, user_id):
         ]
     })
 
+# @login_required
+# def open_inbox(request):
+#     current_user = request.user
+
+#     all_chat_rooms = ChatRoom.objects.filter(
+#             Q(user1=current_user) | Q(user2=current_user)
+#     )
+
+#     other_users = list()
+#     for room in all_chat_rooms:
+#         if room.user1 == current_user:
+#             other_users.append(room.user2)
+#         else:
+#             other_users.append(room.user1)
+#     # get the chat room that is most recent active
+#     messages = ChatMessage.objects.filter(user=current_user)
+
+
 @login_required
-def open_inbox(request):
-    current_user = request.user
-
-    all_chat_rooms = ChatRoom.objects.filter(
-            Q(user1=current_user) | Q(user2=current_user)
-    )
-
-    other_users = list()
-    for room in all_chat_rooms:
-        if room.user1 == current_user:
+@require_GET
+def get_unread_counts(request):
+    user = request.user
+    chat_rooms = ChatRoom.objects.filter(user1=user) | ChatRoom.objects.filter(user2=user)
+    other_users = []
+    unread_counts = dict()
+    for room in chat_rooms:
+        if room.user1 == user:
             other_users.append(room.user2)
         else:
             other_users.append(room.user1)
-    # get the chat room that is most recent active
-    messages = ChatMessage.objects.filter(user=current_user)
+    
+    unread_counts = {
+        str(other_user.id): room.get_unread_count(user)
+        for other_user,room in zip(other_users,chat_rooms)
+    }
+    return JsonResponse(unread_counts)

@@ -152,6 +152,7 @@
                 <li class="chat-list-item {% if user.id == user2.id %}active-chat{% endif %}">
                     <a href="{% url 'chat:room' user.id %}" {% if user.id == user2.id %}class="active-link"{% endif %}>
                         {{ user.get_short_name }}
+                        <span class="unread-count" data-user-id="{{ user.id }}">0</span>
                     </a>
                 </li>
                 {% endfor %}
@@ -187,9 +188,35 @@
     {{ last_message_id|json_script:"last-message-id" }}
 
     <script>
+
+
+        
         const user2Id = JSON.parse(document.getElementById('user2-id').textContent);
         const currentUserId = JSON.parse(document.getElementById('current-user-id').textContent);
         let lastMessageId = JSON.parse(document.getElementById('last-message-id').textContent);
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const chatList = document.getElementById('chat-list');
+        const currentUserId = JSON.parse(document.getElementById('current-user-id').textContent);
+
+        function updateUnreadCounts() {
+            fetch(`/api/unread-counts/`)
+                .then(response => response.json())
+                .then(data => {
+                    for (const [userId, count] of Object.entries(data)) {
+                        const countElement = chatList.querySelector(`[data-user-id="${userId}"] .unread-count`);
+                        if (countElement) {
+                            countElement.textContent = count > 0 ? count : '';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching unread counts:', error));
+        }
+
+    // Update unread counts immediately and every 30 seconds
+        updateUnreadCounts();
+        setInterval(updateUnreadCounts, 30000);
 
         const chatSocket = new WebSocket(
             'ws://' + window.location.host + '/ws/chat/' + user2Id + '/'
@@ -203,6 +230,11 @@
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
+        
+
+            // Reset unread count when entering a chat room
+
+        
 
         function appendMessage(message, userId) {
             const messageList = document.querySelector('#chat-log');
@@ -255,6 +287,16 @@
                     });
                 });
         }
+
+        // Reset unread_count when user1 visit a chat_room
+        const chatLinks = chatList.querySelectorAll('a');
+        chatLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const userId = this.querySelector('.unread-count').dataset.userId;
+            this.querySelector('.unread-count').textContent = '';
+        });
+    });
+})
     </script>
 </body>
 </html>
