@@ -1,5 +1,5 @@
 from django.urls import path
-from authy.views import UserProfile, Signup, PasswordChange, PasswordChangeDone, EditProfile, add_cat, CatDetail, createEmbeddingVector,deleteCatImg,addCatImage, viewCat
+from authy.views import UserProfile, Signup, PasswordChange, PasswordChangeDone, EditProfile, add_cat, CatDetail, createEmbeddingVector,deleteCatImg,addCatImage, viewCat, catAlbum
 
 from django.contrib.auth import views as authViews 
 
@@ -23,6 +23,7 @@ urlpatterns = [
     path('cats/add/<int:cat_id>/',addCatImage,name='add-cat-img'),
     path('cats/create-emb-vector/<int:cat_id>/',createEmbeddingVector,name='create-emb-vector'),
     path('cat-img/delete/<int:post_id>',deleteCatImg,name='cat-img-delete'),
+	path('cats/<int:cat_id>/album/',catAlbum,name='cat-album'),
     
 ]
 

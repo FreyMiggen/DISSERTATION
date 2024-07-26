@@ -8,6 +8,9 @@
     <title>
       {% block title %} Pet Net {% endblock %}
   </title>
+  <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css">
     <link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -21,7 +24,7 @@
     <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="{% url 'newsfeed' %}">
-        <img src="{% static 'img/instagram_black.png' %}" width="64" height="64">
+        <img src="{% static 'img/avatar.jpg' %}" width="64" height="64">
       </a>
   
       <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">

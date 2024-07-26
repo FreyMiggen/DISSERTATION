@@ -128,33 +128,6 @@ class UserProfileView(TemplateView):
 		view.initkwargs = initkwargs
 		return view
     	
-def UserProfileFavorites(request, username):
-	user = get_object_or_404(User, username=username)
-	profile = Profile.objects.get(user=user)
-	
-	posts = profile.favorites.all()
-
-	#Profile info box
-	posts_count = Post.objects.filter(user=user).count()
-	following_count = Follow.objects.filter(follower=user).count()
-	followers_count = Follow.objects.filter(following=user).count()
-
-	#Pagination
-	paginator = Paginator(posts, 8)
-	page_number = request.GET.get('page')
-	posts_paginator = paginator.get_page(page_number)
-
-	template = loader.get_template('profile_favorite.html')
-
-	context = {
-		'posts': posts_paginator,
-		'profile':profile,
-		'following_count':following_count,
-		'followers_count':followers_count,
-		'posts_count':posts_count,
-	}
-
-	return HttpResponse(template.render(context, request))
 
 
 def Signup(request):
@@ -305,7 +278,14 @@ def CatDetail(request,cat_id):
 	else:
 		context = {'cats':cats,'message':'You do not have permission to access this page','requesting_profile':profile}
 
-	return render(request,'cat_detail.html',context)
+	return render(request,'cat_detail_test.html',context)
+
+def catAlbum(request,cat_id):
+	profile = get_object_or_404(Profile,user=request.user)
+	cat = get_object_or_404(Cat,id=cat_id)
+	post_list = Post.objects.filter(cats=cat)
+	context={'post_list':post_list,'cat':cat,'requesting_profile':profile}
+	return render(request,'cat_album.html',context)
 
 @login_required(login_url='authy:login')
 def viewCat(request):

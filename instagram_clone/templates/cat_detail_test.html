@@ -1,0 +1,87 @@
+{% extends "base_test.html" %}
+{% load static %}
+{% block styles %}
+<style>
+    body {
+        background-color: #fce4ec;
+        background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff80ab' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .cute-card {
+        border-radius: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .cute-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    .cute-image {
+        border-radius: 50%;
+        border: 5px solid #fff;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .cute-title {
+        color: #f06292;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    .cute-description {
+        color: #9c27b0;
+    }
+    .cute-footer-item {
+        background-color: #f8bbd0;
+        color: #ad1457;
+        border-radius: 15px;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    .cute-footer-item:hover {
+        background-color: #f06292;
+        color: #fff;
+        transform: scale(1.05);
+    }
+
+</style>
+{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+
+            <div class="column is-half">
+                <!-- Image -->
+                <figure class="image is-4by3 mb-5 ">
+                    {% if cat.picture.url %}
+                    <img src="{{ cat.picture.url }}" alt="Centered image" class="cute-image">
+                    {% else %}
+                    <img src="{% static 'img/cat_default_avatar.jpg' %}" alt="Placeholder">
+                    {% endif %}
+                </figure>
+
+                <!-- Card -->
+                <div class="card is-rounded">
+                    <header class="card-header">
+                        <p class="card-header-title">Card header</p>
+                        <button class="card-header-icon" aria-label="more options">
+                          <span class="icon">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                          </span>
+                        </button>
+                      </header>
+                    <div class="card-content">
+                        <div class="content">
+                            <h2 class="title is-4 cute-title">{{ cat.name }}</h2>
+                            <p class="cute-description"> {{ cat.description }}</p>
+                        </div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'authy:cat-album' cat.id %}" class="card-footer-item button is-small cute-footer-item">Face Image Storage</a>
+                        <a href="{% url 'authy:cat-album' cat.id %}" class="card-footer-item button is-small cute-footer-item">Album</a>
+                        <a href="{{ link3_url }}" class="card-footer-item button is-small cute-footer-item">Favorite Food</a>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
